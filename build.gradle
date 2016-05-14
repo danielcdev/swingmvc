@@ -1,0 +1,30 @@
+apply plugin: 'java'
+archivesBaseName = "swingmvc"
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+ 
+dependencies {
+}
+
+jar {
+	manifest {
+		attributes(
+		"Manifest-Version": "1.0",
+		"Permissions": "all-permissions",
+		"Application-Name": "swingmvc",
+		)
+	}
+}
+
+compileJava {
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+}
