@@ -20,8 +20,8 @@ public class ModelAndView {
     @SuppressWarnings("unchecked")
     public ModelAndView(String viewName) {
 	try {
-	    this.classLoader = (Class<View>) Class.forName(viewName);
-	    this.view = (View) classLoader.newInstance();
+	    classLoader = (Class<View>) Class.forName(viewName);
+	    view = (View) classLoader.newInstance();
 	    processViewAnnotations();
 	} catch (Exception e) {
 	    e.printStackTrace();
