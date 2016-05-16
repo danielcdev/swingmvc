@@ -9,81 +9,76 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import com.danielcotter.swingmvc.annotation.Component;
+import com.danielcotter.swingmvc.config.Configuration;
 
 public class ModelAndView {
 
-    private View view;
-    private Class<View> classLoader;
-    private Map<String, JComponent> viewComponents = new HashMap<String, JComponent>();
-    private Window window;
+	private View view;
+	private Class<View> classLoader;
+	private Map<String, JComponent> viewComponents = new HashMap<String, JComponent>();
+	private Window window;
 
-    @SuppressWarnings("unchecked")
-    public ModelAndView(String viewName) {
-	try {
-	    classLoader = (Class<View>) Class.forName(viewName);
-	    view = (View) classLoader.newInstance();
-	    processViewAnnotations();
-	} catch (Exception e) {
-	    e.printStackTrace();
+	@SuppressWarnings("unchecked")
+	public ModelAndView(String viewName) {
+		try {
+			classLoader = (Class<View>) Class.forName(Configuration.getRequiredSetting("viewPath") + "." + viewName);
+			view = (View) classLoader.newInstance();
+			processViewAnnotations();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-    }
 
-    public void render() {
-	SwingUtilities.invokeLater(new Runnable() {
-	    public void run() {
-		view.renderView();
-	    }
-	});
-    }
-
-    public JComponent getComponent(String name) {
-	return viewComponents.get(name);
-    }
-
-    public Window getWindow() {
-	return window;
-    }
-
-    private void processViewAnnotations() throws IllegalArgumentException,
-	    IllegalAccessException {
-	for (Field field : classLoader.getDeclaredFields()) {
-	    if (field.isAnnotationPresent(Component.class)
-		    && JComponent.class.isAssignableFrom(field.getType()))
-		processComponent(field);
-
-	    if (field
-		    .isAnnotationPresent(com.danielcotter.swingmvc.annotation.Window.class)
-		    && Window.class.isAssignableFrom(field.getType()))
-		processWindow(field);
+	public void render() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				view.renderView();
+			}
+		});
 	}
-    }
 
-    private void processComponent(Field field) throws IllegalArgumentException,
-	    IllegalAccessException {
-	String name = (field.getAnnotation(Component.class).name().equals("")) ? field
-		.getName() : field.getAnnotation(Component.class).name();
+	public JComponent getComponent(String name) {
+		return viewComponents.get(name);
+	}
 
-	viewComponents.put(name, (JComponent) getFieldValue(field));
-    }
+	public Window getWindow() {
+		return window;
+	}
 
-    private void processWindow(Field field) throws IllegalArgumentException,
-	    IllegalAccessException {
-	window = (Window) getFieldValue(field);
-    }
+	private void processViewAnnotations() throws IllegalArgumentException, IllegalAccessException {
+		for (Field field : classLoader.getDeclaredFields()) {
+			if (field.isAnnotationPresent(Component.class) && JComponent.class.isAssignableFrom(field.getType()))
+				processComponent(field);
 
-    private Object getFieldValue(Field field) throws IllegalArgumentException,
-	    IllegalAccessException {
-	boolean changeAccess = (!field.isAccessible()) ? true : false;
-	Object object = null;
+			if (field.isAnnotationPresent(com.danielcotter.swingmvc.annotation.Window.class)
+					&& Window.class.isAssignableFrom(field.getType()))
+				processWindow(field);
+		}
+	}
 
-	if (changeAccess)
-	    field.setAccessible(true);
+	private void processComponent(Field field) throws IllegalArgumentException, IllegalAccessException {
+		String name = (field.getAnnotation(Component.class).name().equals("")) ? field.getName()
+				: field.getAnnotation(Component.class).name();
 
-	object = field.get(view);
+		viewComponents.put(name, (JComponent) getFieldValue(field));
+	}
 
-	if (changeAccess)
-	    field.setAccessible(false);
+	private void processWindow(Field field) throws IllegalArgumentException, IllegalAccessException {
+		window = (Window) getFieldValue(field);
+	}
 
-	return object;
-    }
+	private Object getFieldValue(Field field) throws IllegalArgumentException, IllegalAccessException {
+		boolean changeAccess = (!field.isAccessible()) ? true : false;
+		Object object = null;
+
+		if (changeAccess)
+			field.setAccessible(true);
+
+		object = field.get(view);
+
+		if (changeAccess)
+			field.setAccessible(false);
+
+		return object;
+	}
 }
