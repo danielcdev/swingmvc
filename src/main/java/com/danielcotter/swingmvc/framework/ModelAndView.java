@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 
 import com.danielcotter.swingmvc.annotation.Component;
 import com.danielcotter.swingmvc.config.Configuration;
+import com.danielcotter.swingmvc.inherited.View;
 
 public class ModelAndView {
 
@@ -21,7 +22,8 @@ public class ModelAndView {
 	@SuppressWarnings("unchecked")
 	public ModelAndView(String viewName) {
 		try {
-			classLoader = (Class<View>) Class.forName(Configuration.getRequiredSetting("viewPath") + "." + viewName);
+			classLoader = (Class<View>) Class
+					.forName(Configuration.getRequiredSetting("swingmvc.view.autodetection") + "." + viewName);
 			view = (View) classLoader.newInstance();
 			processViewAnnotations();
 		} catch (Exception e) {
@@ -32,7 +34,7 @@ public class ModelAndView {
 	public void render() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				view.renderView();
+				view.render();
 			}
 		});
 	}

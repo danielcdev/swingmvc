@@ -25,7 +25,7 @@ public class Configuration {
 		try {
 			properties.loadFromXML(Configuration.class.getResourceAsStream("/swingmvc.xml"));
 		} catch (Exception e) {
-			System.out.println("Make sure swingmvc.xml exists, and it is formatted correctly");
+			System.out.println("Make sure swingmvc.xml exists and is formatted correctly");
 			e.printStackTrace();
 		}
 
